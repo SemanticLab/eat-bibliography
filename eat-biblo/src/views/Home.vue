@@ -90,7 +90,10 @@
             </div>
           </td>
 
-          <td><div v-for="(d,idx) in d.pubIn" v-bind:key="idx+d">{{d.label}}</div></td>
+          <td><div v-for="(d,idx) in d.pubIn" v-bind:key="idx+d">
+            <router-link :to="`/published/${d.uri.split('/')[4]}`">{{ d.label }}</router-link>
+
+          </div></td>
 
           <td>            
             <div v-for="(c,idx) in d.pubPlaces" v-bind:key="idx+c">

@@ -8,7 +8,7 @@
 
 
 
-    <template v-if="type=='people' || type=='publisher'">
+    <template v-if="type=='people' || type=='publisher' || type=='published'">
 
 
       <template v-if="wikidata===null">
@@ -37,6 +37,8 @@
           <th>Date</th>
           <th>Type</th>
           <th>Publisher</th>
+          <th>Published In</th>
+
           <th>Pub City</th>
           <th>Pages</th>
           <th>Id</th>
@@ -69,12 +71,16 @@
           </td>
           <td><div v-for="(d,idx) in d.reportDate" v-bind:key="idx+d">{{d}}</div></td>
 
-          <td><div v-for="(d,idx) in d.instanceOf" v-bind:key="idx+d">{{d.label}}</div></td>
+          <td><div v-for="(d,idx) in d.instanceOf" class="nowrap" v-bind:key="idx+d">{{d.label}}</div></td>
           <td>
             <div v-for="(c,idx) in d.pubs" v-bind:key="idx+c">
               <router-link :to="`/publisher/${c.uri.split('/')[4]}`">{{ c.label }}</router-link>
             </div>
           </td>
+          <td><div v-for="(d,idx) in d.pubIn" v-bind:key="idx+d">
+            <router-link :to="`/published/${d.uri.split('/')[4]}`">{{ d.label }}</router-link>
+
+          </div></td>          
           <td>
             <div v-for="(c,idx) in d.pubPlaces" v-bind:key="idx+c">
               {{ c.label }}
@@ -624,7 +630,7 @@ export default {
 
     load: async function(){
 
-    console.log('hello')
+    console.log('hello', this.$route.name)
       this.type = this.$route.name
       this.qid = this.$route.params.qid
 
@@ -653,7 +659,7 @@ export default {
 
 
 
-      if (this.type == 'people' || this.type == 'publisher'){
+      if (this.type == 'people' || this.type == 'publisher' || this.type == 'published'){
 
 
         // this is a person build the lookup data
@@ -708,6 +714,17 @@ export default {
               return false
               
             })
+          }else if (this.type == 'published'){
+            this.filteredData = this.allData.filter((d)=> {  
+              let pubInUris = d.pubIn.map((c)=>c.uri)
+              if (pubInUris.indexOf(uri)>-1){
+                return true
+              }
+
+              return false
+              
+            })
+
           }else{
             this.filteredData = this.allData.filter((d)=> {  
               let pubUris = d.pubs.map((c)=>c.uri)
@@ -811,5 +828,8 @@ dd{
     line-height: 20px;
 }
 
+  .nowrap{
+    white-space: nowrap;
+  }
 
 </style>

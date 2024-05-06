@@ -34,8 +34,11 @@ const routes = [
     name: 'publisher',
     component: Entity
   },
-  
-
+  {
+    path: '/published/:qid',
+    name: 'published',
+    component: Entity
+  },
 ]
 
 const router = new VueRouter({
