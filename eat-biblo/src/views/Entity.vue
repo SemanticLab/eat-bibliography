@@ -159,7 +159,18 @@
 
 
                     </dd>
+                    <dt>Published In</dt>
+                    <dd>
+                      <div v-for="(c,idx) in entityData.pubIn" v-bind:key="idx+c">
+                        {{ c.label }}
+                      </div>
 
+                      <div class="no-data" v-if="entityData.pubIn.length===0">
+                          No Data
+                      </div>
+
+
+                    </dd>
 
 
                     <dt>Publisher Place</dt>

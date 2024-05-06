@@ -27,7 +27,7 @@ const util = {
 
 	queriesAllData: `
 
-		select ?item ?itemLabel ?instance ?instanceLabel ?creator ?creatorLabel ?title ?date ?publisher ?publisherLabel ?pubPlace ?pubPlaceLabel ?localId ?reportedDate ?pagenumber ?description where{
+		select ?item ?itemLabel ?instance ?instanceLabel ?creator ?creatorLabel ?title ?date ?publisher ?publisherLabel ?publishedIn ?publishedInLabel ?pubPlace ?pubPlaceLabel ?localId ?reportedDate ?pagenumber ?description where{
 
 			?item wdt:P11 wd:Q20517 .
 			?item wdt:P1 wd:Q19069 .
@@ -42,13 +42,16 @@ const util = {
 			optional{?item wdt:P134 ?reportedDate }
 			optional{?item wdt:P87 ?pagenumber }
 			optional{?item wdt:P130 ?description}
+			optional{?item wdt:P103 ?publishedIn}
+
+
 
 			SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". } # Helps get the label in your language, if not, then en language
 		}`,
 
 
 	sparqlOptions: {
-        headers: new Headers({'Accept' : 'application/json','User-Agent': 'EAT Biblo Interface'}),
+        headers: new Headers({'Accept' : 'application/json'}),
         mode: 'cors'
     },
 
@@ -72,6 +75,7 @@ const util = {
 					localIds: [],
 					pageNumbers: [],
 					pubPlaces: [],
+					pubIn: [],
 					pubs: [],
 					reportDate: [],
 					date: null,
@@ -117,6 +121,14 @@ const util = {
 			if (d.pagenumber){
 				if (lookup[d.item.value].pageNumbers.indexOf(d.pagenumber.value)==-1){
 					lookup[d.item.value].pageNumbers.push(d.pagenumber.value)
+				}
+			}
+
+			if (d.publishedIn && d.publishedInLabel){
+				if (lookup[d.item.value].pubIn.filter((v)=>{ return (v.uri == d.publishedIn.value) }).length==0){
+					if (!d.publishedInLabel.value.match(/Q[0-9]+/)){
+						lookup[d.item.value].pubIn.push({'label':d.publishedInLabel.value,'uri':d.publishedIn.value})
+					}
 				}
 			}
 
