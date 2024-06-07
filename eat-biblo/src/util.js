@@ -27,7 +27,7 @@ const util = {
 
 	queriesAllData: `
 
-		select ?item ?itemLabel ?instance ?instanceLabel ?creator ?creatorLabel ?title ?date ?publisher ?publisherLabel ?publishedIn ?publishedInLabel ?pubPlace ?pubPlaceLabel ?localId ?reportedDate ?pagenumber ?description where{
+		select ?item ?itemLabel ?instance ?instanceLabel ?creator ?creatorLabel ?title ?date ?publisher ?publisherLabel ?publishedIn ?publishedInLabel ?pubPlace ?pubPlaceLabel ?localId ?reportedDate ?pageNumber ?numberPages ?description where{
 
 			?item wdt:P11 wd:Q20517 .
 			?item wdt:P1 wd:Q19069 .
@@ -40,7 +40,10 @@ const util = {
 			optional{?item wdt:P104 ?pubPlace }
 			optional{?item wdt:P17 ?localId }
 			optional{?item wdt:P134 ?reportedDate }
-			optional{?item wdt:P87 ?pagenumber }
+			optional{?item wdt:P87 ?pageNumber }
+			optional{?item wdt:P101 ?numberPages }
+
+			
 			optional{?item wdt:P130 ?description}
 			optional{?item wdt:P103 ?publishedIn}
 
@@ -74,6 +77,8 @@ const util = {
 					titles: [],
 					localIds: [],
 					pageNumbers: [],
+					numberPages: [],
+
 					pubPlaces: [],
 					pubIn: [],
 					pubs: [],
@@ -118,11 +123,16 @@ const util = {
 				}
 			}
 
-			if (d.pagenumber){
-				if (lookup[d.item.value].pageNumbers.indexOf(d.pagenumber.value)==-1){
-					lookup[d.item.value].pageNumbers.push(d.pagenumber.value)
+			if (d.pageNumber){
+				if (lookup[d.item.value].pageNumbers.indexOf(d.pageNumber.value)==-1){
+					lookup[d.item.value].pageNumbers.push(d.pageNumber.value)
 				}
 			}
+			if (d.numberPages){
+				if (lookup[d.item.value].numberPages.indexOf(d.numberPages.value)==-1){
+					lookup[d.item.value].numberPages.push(d.numberPages.value)
+				}
+			}			
 
 			if (d.publishedIn && d.publishedInLabel){
 				if (lookup[d.item.value].pubIn.filter((v)=>{ return (v.uri == d.publishedIn.value) }).length==0){

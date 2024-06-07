@@ -3,7 +3,7 @@
 
 
 
-    <router-link style="float: right; z-index: 100;"  class="button" :to="'/'">Home </router-link>
+    <router-link style="float: right; z-index: 100; background-color: lemonchiffon;"  class="button" :to="'/'">Return To Index</router-link>
 
 
 
@@ -191,7 +191,7 @@
 
                     </dd>
 
-                    <dt>Page Numbers</dt>
+                    <dt>Page Number</dt>
                     <dd>
                       <div v-for="(d,idx) in entityData.pageNumbers" v-bind:key="idx+d">{{d}}</div>
                       <div class="no-data" v-if="entityData.pageNumbers.length===0">
@@ -200,7 +200,16 @@
 
                     </dd>
 
-                    <dt>Local Id</dt>
+                    <dt>Number of Pages</dt>
+                    <dd>
+                      <div v-for="(d,idx) in entityData.numberPages" v-bind:key="idx+d">{{d}}</div>
+                      <div class="no-data" v-if="entityData.numberPages.length===0">
+                          No Data
+                      </div>                    
+
+                    </dd>
+
+                    <dt>Citation Number</dt>
                     <dd>
                       <div v-for="(d,idx) in entityData.localIds" v-bind:key="idx+d">{{d}}</div>
                       <div class="no-data" v-if="entityData.localIds.length===0">
@@ -656,6 +665,22 @@ export default {
       this.entityData = this.allData.filter((d)=> { return (d.qid === this.qid) })[0]
 
       console.log(this.qid, this.entityData)
+
+      // dedupe the title
+      if (this.entityData && this.entityData.titles){
+          let existingTitle = ""
+          this.entityData.titles = this.entityData.titles.filter((v) =>{
+
+            if (existingTitle.indexOf(v) === -1){
+                existingTitle = existingTitle + v
+                return true
+            }else{
+                return false
+            }
+
+
+          })
+      }
 
 
 
