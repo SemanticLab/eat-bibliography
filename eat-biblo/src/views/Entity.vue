@@ -7,7 +7,7 @@
 
 
 
-
+    
     <template v-if="type=='people' || type=='publisher' || type=='published'">
 
 
@@ -131,7 +131,7 @@
                     
 
 
-                    <dt>Creators</dt>
+                    <dt>Authors</dt>
                     <dd>
 
                       <div v-for="(c,idx) in entityData.creators" v-bind:key="idx+c">
@@ -354,7 +354,7 @@ var wikiCards = {
     },
     
     buildKnowledgeCard: function(data){
-        
+        console.log(data)
         // look for the right place to build the card
         document.querySelectorAll(".wiki-knowledge-card").forEach((wc)=>{
             
@@ -374,6 +374,7 @@ var wikiCards = {
                     wc.appendChild(image)
                }
                 if (data.title){
+                    data.title = data.title.replace("(artist)",'')
                     var title = document.createElement('div')
                     title.classList.add('knowledge-card-wiki-title')
                     title.classList.add('is-size-2')

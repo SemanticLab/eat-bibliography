@@ -33,7 +33,7 @@ const util = {
 			?item wdt:P1 wd:Q19069 .
 
 			optional{?item wdt:P1 ?instance }
-			optional{?item wdt:P74 ?creator }
+			optional{?item wdt:P91 ?creator }
 			optional{?item wdt:P82 ?title }
 			optional{?item wdt:P98 ?date }
 			optional{?item wdt:P84 ?publisher } 
