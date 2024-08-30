@@ -30,7 +30,7 @@ const util = {
 		select ?item ?itemLabel ?instance ?instanceLabel ?creator ?creatorLabel ?title ?date ?publisher ?publisherLabel ?publishedIn ?publishedInLabel ?pubPlace ?pubPlaceLabel ?localId ?reportedDate ?pageNumber ?numberPages ?description where{
 
 			?item wdt:P11 wd:Q20517 .
-			?item wdt:P1 wd:Q19069 .
+			?item wdt:P1 wd:Q27513 .
 
 			optional{?item wdt:P1 ?instance }
 			optional{?item wdt:P91 ?creator }
