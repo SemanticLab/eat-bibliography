@@ -159,6 +159,12 @@ const util = {
 
 					lookup[d.item.value].reportDate.push(d.reportedDate.value)
 				}
+			}else if (d.date && d.date.value && d.date.value.indexOf("T")>-1){
+
+
+				lookup[d.item.value].reportDate.push(d.date.value.split("T")[0])
+
+
 			}
 
 
