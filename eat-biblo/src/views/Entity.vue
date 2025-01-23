@@ -640,7 +640,7 @@ export default {
 
     load: async function(){
 
-    console.log('hello', this.$route.name)
+    // console.log('hello', this.$route.name)
       this.type = this.$route.name
       this.qid = this.$route.params.qid
 
@@ -653,6 +653,7 @@ export default {
         }else{
           // load it
           this.allData = await util.getAllData()
+          // console.log("this.allData",this.allData)
         }
 
 
@@ -665,7 +666,7 @@ export default {
 
       this.entityData = this.allData.filter((d)=> { return (d.qid === this.qid) })[0]
 
-      console.log(this.qid, this.entityData)
+      // console.log(this.qid, this.entityData)
 
       // dedupe the title
       if (this.entityData && this.entityData.titles){
@@ -696,8 +697,8 @@ export default {
         this.label = r.label
 
 
-        console.log(this.wikidata)
-        console.log(this.label)
+        // console.log('this.wikidata',this.wikidata)
+        // console.log('this.label',this.label)
 
         if (this.wikidata != null){
 
@@ -724,6 +725,11 @@ export default {
             }
           },1000)
           
+
+
+
+        }
+
 
           let uri = 'http://base.semlab.io/entity/'+this.qid
           
@@ -765,10 +771,12 @@ export default {
           }
 
 
-          console.log(this.filteredData)
+          // console.log(this.filteredData)
 
 
-        }
+
+
+        
 
       }
 
