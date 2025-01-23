@@ -16,7 +16,7 @@
           <h1 class="is-size-2">          
             {{label}}
           </h1>
-        <div style="margin-bottom: 2em;"><a target="_blank" :href="'http://base.semlab.io/entity/'+qid">View on Semlab Wikibase</a></div>
+        <div style="margin-bottom: 2em;"><a target="_blank" :href="'http://base.semlab.io/entity/'+qid">View on SemLab_Wikibase</a></div>
 
 
         </div>
@@ -124,7 +124,7 @@
 
               </h1>
 
-              <div style="margin-bottom: 2em;"><a target="_blank" :href="entityData.uri">View on Semlab Wikibase</a></div>
+              <div style="margin-bottom: 2em;"><a target="_blank" :href="entityData.uri">View on SemLab_Wikibase</a></div>
 
               <div>
                 <dl>
@@ -716,7 +716,7 @@ export default {
               var wikipediaLink = document.createElement('a')
               wikipediaLink.setAttribute('href','http://base.semlab.io/entity/'+this.qid)
 
-              wikipediaLink.innerHTML="Semlab Wikibase"
+              wikipediaLink.innerHTML="SemLab_Wikibase"
               document.getElementsByClassName('knowledge-card-wiki-wikiLinks')[0].appendChild(wikipediaLink)
 
 
