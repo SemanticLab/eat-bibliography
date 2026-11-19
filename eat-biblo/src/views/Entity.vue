@@ -43,7 +43,7 @@
           <th>Pages</th>
           <th>Id</th>
           <th>Source</th>
-          <th>Article</th>
+          <th>Summary</th>
           <th></th>
 
 
@@ -95,8 +95,11 @@
           <td><div v-for="s in d.sources" v-bind:key="s"><span class="tag nowrap" :class="'source-'+s" :title="sourceInfo(s).label">{{sourceInfo(s).short}}</span></div></td>
 
           <td class="nowrap">
-            <div v-for="u in articleUrls(d)" v-bind:key="u"><a target="_blank" rel="noopener" :href="u" :title="'Open the article at ' + hostOf(u)">article&nbsp;&#8599;</a></div>
-            <div v-if="hasSummary(d)"><router-link :to="`/document/${d.qid}`" title="Read the summary of the article">summary</router-link></div>
+            <!-- the summary page also carries the link to the article, so the list shows only one of the two -->
+            <div v-if="hasSummary(d)"><router-link :to="`/document/${d.qid}`" title="Summary of the article, with a link to it">summary</router-link></div>
+            <template v-else>
+              <div v-for="u in articleUrls(d)" v-bind:key="u"><a target="_blank" rel="noopener" :href="u" :title="'Open the article at ' + hostOf(u)">article&nbsp;&#8599;</a></div>
+            </template>
           </td>
 
           <td><a target="_blank" :href="d.uri">data</a></td>
