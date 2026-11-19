@@ -42,6 +42,8 @@
           <th>Pub City</th>
           <th>Pages</th>
           <th>Id</th>
+          <th>Source</th>
+          <th>Article</th>
           <th></th>
 
 
@@ -89,6 +91,13 @@
 
           <td><div v-for="(d,idx) in d.pageNumbers" v-bind:key="idx+d">{{d}}</div></td>
           <td><div v-for="(d,idx) in d.localIds" v-bind:key="idx+d">{{d}}</div></td>
+
+          <td><div v-for="s in d.sources" v-bind:key="s"><span class="tag nowrap" :class="'source-'+s" :title="sourceInfo(s).label">{{sourceInfo(s).short}}</span></div></td>
+
+          <td class="nowrap">
+            <div v-for="u in articleUrls(d)" v-bind:key="u"><a target="_blank" rel="noopener" :href="u" :title="'Open the article at ' + hostOf(u)">article&nbsp;&#8599;</a></div>
+            <div v-if="hasSummary(d)"><router-link :to="`/document/${d.qid}`" title="Read the summary of the article">summary</router-link></div>
+          </td>
 
           <td><a target="_blank" :href="d.uri">data</a></td>
 
@@ -217,6 +226,16 @@
                       </div>                         
                     </dd>
 
+                    <dt>Source</dt>
+                    <dd>
+                      <div v-for="s in entityData.sources" v-bind:key="s">
+                        <router-link :to="{path: '/', query: {source: s}}" :title="'All references from this source'">{{ sourceInfo(s).label }}</router-link>
+                      </div>
+                      <div class="no-data" v-if="entityData.sources.length===0">
+                          No Data
+                      </div>
+                    </dd>
+
 
 
                 </dl>
@@ -226,7 +245,42 @@
               </div>
 
             </div>
-            <div class="column">
+            <div class="column" style="text-align: left;">
+
+              <!-- the article itself, when it is in the wikibase: why it matters, where to read it, and its summary -->
+              <div class="article-box" v-for="a in entityData.articles" v-bind:key="a.uri">
+
+                <div class="article-label" v-if="entityData.articles.length>1">{{ a.label }}</div>
+
+                <template v-if="a.relevance">
+                  <h2 class="article-heading">Relevance to E.A.T.</h2>
+                  <p class="article-text">{{ a.relevance }}</p>
+                </template>
+
+                <h2 class="article-heading">Read the article</h2>
+                <div class="article-text" v-for="u in a.urls" v-bind:key="u">
+                  <a target="_blank" rel="noopener" :href="u">{{ hostOf(u) }} &#8599;</a>
+                </div>
+                <div class="article-text no-data" v-if="a.urls.length===0">No link recorded</div>
+
+                <h2 class="article-heading" v-if="a.blocks.length>0">{{ isSummary(a) ? 'Summary' : 'Text' }}</h2>
+                <div class="article-text no-data" v-if="a.blocks.length>0 && summaries[a.qid]===undefined">Loading&hellip;</div>
+                <div class="article-text no-data" v-else-if="a.blocks.length>0 && summaries[a.qid].length===0">Could not be loaded</div>
+                <template v-else-if="a.blocks.length>0">
+                  <div class="content summary-block" v-for="b in summaries[a.qid]" v-bind:key="b.uri">
+                    <ul v-if="b.bullets">
+                      <li v-for="(l,idx) in b.lines" v-bind:key="idx">{{ l }}</li>
+                    </ul>
+                    <template v-else>
+                      <p v-for="(l,idx) in b.lines" v-bind:key="idx">{{ l }}</p>
+                    </template>
+                    <div class="summary-note" v-if="b.partial">Only the opening of this part could be loaded.</div>
+                  </div>
+                </template>
+                <p class="summary-note" v-if="a.rights">{{ a.rights }}</p>
+                <p class="summary-note"><a target="_blank" :href="a.uri">Article record on SemLab_Wikibase</a></p>
+
+              </div>
 
             </div>
           </div>
@@ -595,6 +649,7 @@ export default {
       entityData: null,
       wikidata: null,
       label: null,
+      summaries: {},
     }
   },
     computed: {
@@ -636,6 +691,45 @@ export default {
 
   },
   methods:{
+
+    sourceInfo: function(key){
+      return util.sourceInfo(key)
+    },
+
+    hostOf: function(url){
+      return util.hostOf(url)
+    },
+
+    // one link for each article a reference points to, and whether any of them has a summary
+    articleUrls: function(d){
+      return d.articles.filter((a)=>{ return a.urls.length>0 }).map((a)=>{ return a.urls[0] })
+    },
+
+    hasSummary: function(d){
+      return d.articles.filter((a)=>{ return a.blocks.length>0 }).length>0
+    },
+
+    // bullet points are a summary; anything else is the text itself
+    isSummary: function(article){
+      let blocks = this.summaries[article.qid]
+      if (blocks && blocks.length>0){
+        return blocks.filter((b)=>{ return b.bullets }).length>0
+      }
+      return /summar/i.test(article.rights || '')
+    },
+
+    // fetch the block texts of each article linked to this reference
+    loadSummaries: function(){
+      if (!this.entityData || !this.entityData.articles){ return }
+      for (let a of this.entityData.articles){
+        if (this.summaries[a.qid]!==undefined || a.blocks.length==0){ continue }
+        util.getBlocks(a.qid).then((blocks)=>{
+          this.$set(this.summaries, a.qid, blocks)
+        }).catch(()=>{
+          this.$set(this.summaries, a.qid, [])
+        })
+      }
+    },
 
 
     load: async function(){
@@ -685,6 +779,10 @@ export default {
       }
 
 
+
+      if (this.type == 'document'){
+        this.loadSummaries()
+      }
 
       if (this.type == 'people' || this.type == 'publisher' || this.type == 'published'){
 
@@ -811,6 +909,44 @@ dd{
 
 .no-data{
   color: darkgray;
+}
+
+.article-box{
+  background: whitesmoke;
+  padding: 1em 1.25em;
+  border-radius: 0.2em;
+  margin-bottom: 1.5em;
+}
+.article-label{
+  font-weight: bold;
+  font-size: 1.1em;
+}
+.article-heading{
+  font-weight: bold;
+  font-size: 1.25em;
+  margin-top: 0.75em;
+}
+.article-box .article-heading:first-child{
+  margin-top: 0;
+}
+.article-text{
+  font-size: 1.1em;
+}
+.summary-block{
+  font-size: 1.1em;
+  margin-bottom: 0.5em !important;
+}
+.summary-block ul{
+  margin-top: 0.25em;
+}
+.summary-block + .summary-block{
+  border-top: 1px solid #dbdbdb;
+  padding-top: 0.5em;
+}
+.summary-note{
+  font-size: 0.8em;
+  color: #4a4a4a;
+  margin-top: 0.5em;
 }
 
 

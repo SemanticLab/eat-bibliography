@@ -27,4 +27,9 @@
 #nav a.router-link-exact-active {
   color: #42b983;
 }
+
+/* which source a reference comes from */
+.tag.source-eb { background-color: #e8e8e8; color: #363636; }
+.tag.source-cv { background-color: #fdf0c8; color: #5c4700; }
+.tag.source-news { background-color: #dcebfb; color: #0d3c6e; }
 </style>

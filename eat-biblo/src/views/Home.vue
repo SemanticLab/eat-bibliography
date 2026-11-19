@@ -10,7 +10,7 @@
 
         <h1 class="is-size-2">E.A.T. Bibliography</h1>
         <div style="background: whitesmoke; padding: 0.5em; border-radius: 0.2em;">
-          The E.A.T. Bibliography [1] contains a comprehensive list of bibliographic references related to the avant-garde movement <span style="font-style: italic;">Experiments in Art and Technology (E.A.T.)</span>. This online version includes a subset of 447 references covering the period 1965-1969. Driven by SPARQL queries, it was developed by the <a href="https://semlab.io/">Semantic Lab</a>, which converted these references into linked open data. Project documentation is available on the <a href="https://base.semlab.io/wiki/Item_talk:Q20517#The_E.A.T._Bibliography_Project_Wikibase_Project_Page">Wikibase Project Page</a>. 
+          The E.A.T. Bibliography [1] contains a comprehensive list of bibliographic references related to the avant-garde movement <span style="font-style: italic;">Experiments in Art and Technology (E.A.T.)</span>. This online version brings together <template v-if="allData.length>0">{{allData.length.toLocaleString()}} references from three sources: {{count('eb')}} from the original bibliography, covering the period 1965-1969; {{count('cv')}} from Billy Klüver's curriculum vitae; and {{count('news')}} press articles found in a 2026 search of newspaper archives, each with a summary and a link to the article.</template><template v-else>references from three sources.</template> Driven by SPARQL queries, it was developed by the <a href="https://semlab.io/">Semantic Lab</a>, which converted these references into linked open data. Project documentation is available on the <a href="https://base.semlab.io/wiki/Item_talk:Q20517#The_E.A.T._Bibliography_Project_Wikibase_Project_Page">Wikibase Project Page</a>. 
           <p style="font-size:0.75em; margin-top: 0.5em;"> 
           [1] Klüver, B. (1980). E.A.T. bibliography: August 12, 1965-January 18, 1980. New York: Experiments in Art and Technology. 
           </p>
@@ -18,7 +18,7 @@
 
         </div>
 
-        <div style="font-size: 0.85em; padding: 0.5em"><a href="https://query.semlab.io/#%0A%09%09select%20%3Fitem%20%3FitemLabel%20%3Finstance%20%3FinstanceLabel%20%3Fcreator%20%3FcreatorLabel%20%3Ftitle%20%3Fdate%20%3Fpublisher%20%3FpublisherLabel%20%3FpublishedIn%20%3FpublishedInLabel%20%3FpubPlace%20%3FpubPlaceLabel%20%3FlocalId%20%3FreportedDate%20%3FpageNumber%20%3FnumberPages%20%3Fdescription%20where%7B%0A%0A%09%09%09%3Fitem%20wdt%3AP11%20wd%3AQ20517%20.%0A%09%09%09%3Fitem%20wdt%3AP1%20wd%3AQ27513%20.%0A%0A%09%09%09optional%7B%3Fitem%20wdt%3AP1%20%3Finstance%20%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP91%20%3Fcreator%20%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP82%20%3Ftitle%20%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP98%20%3Fdate%20%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP84%20%3Fpublisher%20%7D%20%0A%09%09%09optional%7B%3Fitem%20wdt%3AP104%20%3FpubPlace%20%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP17%20%3FlocalId%20%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP134%20%3FreportedDate%20%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP87%20%3FpageNumber%20%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP101%20%3FnumberPages%20%7D%0A%0A%09%09%09%0A%09%09%09optional%7B%3Fitem%20wdt%3AP130%20%3Fdescription%7D%0A%09%09%09optional%7B%3Fitem%20wdt%3AP103%20%3FpublishedIn%7D%0A%0A%0A%0A%09%09%09SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22%5BAUTO_LANGUAGE%5D%2Cen%22.%20%7D%20%23%20Helps%20get%20the%20label%20in%20your%20language%2C%20if%20not%2C%20then%20en%20language%0A%09%09%7D">Source query for data</a></div>
+        <div style="font-size: 0.85em; padding: 0.5em"><a :href="queryLink">Source query for data</a></div>
       </div>
       <div class="column">
        
@@ -33,16 +33,21 @@
 
 <div class="container is-fluid">
     <div class="columns">
-      <div class="column">
+      <div class="column is-one-third">
         <input class="input is-normal" autofocus v-model="filter" type="text" placeholder="Filter">
 
 
       </div>
-      <div class="column">
-       
+      <div class="column" style="text-align: left;">
+
+        <div class="buttons has-addons source-buttons" role="group" aria-label="Show references from">
+          <button class="button" :class="{'is-dark is-selected': source=='all'}" :aria-pressed="String(source=='all')" @click="setSource('all')">All <span class="source-count">{{allData.length}}</span></button>
+          <button v-for="s in sources" v-bind:key="s.key" class="button" :class="{'is-dark is-selected': source==s.key}" :aria-pressed="String(source==s.key)" :title="'Only references from ' + s.about" @click="setSource(s.key)">{{s.label}} <span class="source-count">{{count(s.key)}}</span></button>
+        </div>
 
       </div>
     </div>
+    <div class="showing" v-if="allData.length>0">Showing {{filteredData.length.toLocaleString()}} of {{allData.length.toLocaleString()}} references</div>
 
 </div>
 
@@ -59,6 +64,8 @@
           <th>Pub City</th>
           <th>Pages</th>
           <th>Id</th>
+          <th>Source</th>
+          <th>Article</th>
           <th></th>
 
 
@@ -109,6 +116,13 @@
           <td><div v-for="(d,idx) in d.numberPages" v-bind:key="idx+d">{{d}}</div></td>
           <td><div v-for="(d,idx) in d.localIds" v-bind:key="idx+d">{{d}}</div></td>
 
+          <td><div v-for="s in d.sources" v-bind:key="s"><span class="tag nowrap" :class="'source-'+s" :title="sourceInfo(s).label">{{sourceInfo(s).short}}</span></div></td>
+
+          <td class="nowrap">
+            <div v-for="u in articleUrls(d)" v-bind:key="u"><a target="_blank" rel="noopener" :href="u" :title="'Open the article at ' + hostOf(u)">article&nbsp;&#8599;</a></div>
+            <div v-if="hasSummary(d)"><router-link :to="`/document/${d.qid}`" title="Read the summary of the article">summary</router-link></div>
+          </td>
+
           <td><a target="_blank" :href="d.uri">data</a></td>
 
 
@@ -145,6 +159,9 @@ export default {
       filteredData: [],
       timeout: null,
       filterDebounced: '',
+      source: 'all',
+      sources: util.sources,
+      queryLink: 'https://query.semlab.io/#' + encodeURIComponent(util.queriesAllData),
     }
   },
     computed: {
@@ -156,8 +173,7 @@ export default {
           if (this.timeout) clearTimeout(this.timeout)
           this.timeout = setTimeout(() => {
             this.filterDebounced = val
-            console.log(this.filterDebounced)
-            this.filteredData = util.filter(this.filterDebounced)
+            this.applyFilters()
           }, 300)
         }
       }
@@ -166,6 +182,65 @@ export default {
 
 
   ,
+
+  watch: {
+    // the source can also be set from the address, e.g. #/?source=news
+    '$route' (to) {
+      let wanted = this.validSource(to.query.source)
+      if (wanted != this.source){
+        this.source = wanted
+        this.applyFilters()
+      }
+    }
+  },
+
+  methods: {
+
+    validSource: function(key){
+      return (util.sources.filter((s)=>{ return s.key == key }).length>0) ? key : 'all'
+    },
+
+    count: function(key){
+      return this.allData.filter((d)=>{ return d.sources.indexOf(key)>-1 }).length
+    },
+
+    sourceInfo: function(key){
+      return util.sourceInfo(key)
+    },
+
+    hostOf: function(url){
+      return util.hostOf(url)
+    },
+
+    // one link for each article a reference points to, and whether any of them has a summary
+    articleUrls: function(d){
+      return d.articles.filter((a)=>{ return a.urls.length>0 }).map((a)=>{ return a.urls[0] })
+    },
+
+    hasSummary: function(d){
+      return d.articles.filter((a)=>{ return a.blocks.length>0 }).length>0
+    },
+
+    setSource: function(key){
+      this.source = key
+      this.applyFilters()
+      let query = (key == 'all') ? {} : {source: key}
+      if ((this.$route.query.source || 'all') != key){
+        this.$router.replace({path: '/', query: query}).catch(()=>{})
+      }
+    },
+
+    // the text filter and the source filter together
+    applyFilters: function(){
+      let rows = util.filter(this.filterDebounced)
+      if (this.source != 'all'){
+        rows = rows.filter((d)=>{ return d.sources.indexOf(this.source)>-1 })
+      }
+      this.filteredData = rows
+      util.homeState = {source: this.source, text: this.filterDebounced}
+    }
+
+  },
 
   created: async function(){
 
@@ -192,8 +267,13 @@ export default {
           
         }
         
-        this.filteredData = this.allData
-        console.log(this.allData)
+        // come back to what was showing before, unless the address asks for a source
+        this.filterDebounced = util.homeState.text
+        this.source = (this.$route.query.source) ? this.validSource(this.$route.query.source) : util.homeState.source
+        this.applyFilters()
+        if (this.source != 'all' && this.$route.query.source != this.source){
+          this.$router.replace({path: '/', query: {source: this.source}}).catch(()=>{})
+        }
       }    
 
   }
@@ -212,5 +292,18 @@ export default {
   .nowrap{
     white-space: nowrap;
   }
-
+  .source-buttons{
+    margin-bottom: 0;
+  }
+  .source-count{
+    margin-left: 0.5em;
+    font-size: 0.8em;
+    opacity: 0.7;
+  }
+  .showing{
+    text-align: left;
+    font-size: 0.85em;
+    color: #4a4a4a;
+    padding: 0 0 0.75em 0.1em;
+  }
 </style>
